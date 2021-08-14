@@ -1,6 +1,7 @@
 from collections import defaultdict
 import os
 from statistics import mean
+import sys
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, MetaData, and_
@@ -56,10 +57,15 @@ def view_comments_bite(bite_id):
     feedbacks = _get_feedbacks()
     bite_comments = feedbacks.filter(table.bite_id == bite_id).all()
     for row in bite_comments:
-        comment = row[1]
+        comment = row[1].replace("\r\n", " ")
         sentiment = TextBlob(comment).sentiment
-        print(sentiment.polarity, comment)
+        print(f"{round(sentiment.polarity, 2):5} | {comment}")
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 2:
+        bite_id = int(sys.argv[1])
+        print(f"Viewing comments for bite id {bite_id}")
+        view_comments_bite(bite_id)
+    else:
+        main()
