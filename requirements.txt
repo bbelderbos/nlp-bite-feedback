@@ -1,0 +1,10 @@
+click==8.0.1
+greenlet==1.1.1
+joblib==1.0.1
+nltk==3.6.2
+psycopg2-binary==2.9.1
+python-dotenv==0.19.0
+regex==2021.8.3
+SQLAlchemy==1.4.22
+textblob==0.15.3
+tqdm==4.62.0
