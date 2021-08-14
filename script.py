@@ -55,16 +55,18 @@ def main():
 def view_comments_bite(bite_id):
     feedbacks = _get_feedbacks()
     bite_comments = feedbacks.filter(sa_table.bite_id == bite_id).all()
+    results = []
     for row in bite_comments:
         comment = row[1].replace("\r\n", " ")
-        sentiment = TextBlob(comment).sentiment
-        print(f"{round(sentiment.polarity, 2):5} | {comment}")
+        polarity = TextBlob(comment).sentiment.polarity
+        results.append((polarity, comment))
+    for polarity, comment in sorted(results):
+        print(f"{round(polarity, 2):5} | {comment}")
 
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
         bite_id = int(sys.argv[1])
-        print(f"Viewing comments for bite id {bite_id}")
         view_comments_bite(bite_id)
     else:
         main()
