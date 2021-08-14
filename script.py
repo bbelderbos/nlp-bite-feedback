@@ -32,7 +32,7 @@ def _get_feedbacks():
     return feedbacks
 
 
-def main(negative_only=True):
+def main():
     feedbacks = _get_feedbacks()
 
     results = defaultdict(list)
@@ -49,8 +49,6 @@ def main(negative_only=True):
     for bite_id, (num_comments, avg_score) in sorted(
         average_scores.items(), key=lambda x: x[1][1]
     ):
-        if negative_only and avg_score >= 0:
-            continue
         print(f"{bite_id:7} | {num_comments:10} | {avg_score}")
 
 
