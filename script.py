@@ -14,19 +14,20 @@ load_dotenv()
 engine = create_engine(os.environ["DATABASE_URL"])
 session = sessionmaker(engine)()
 
+feedback_table = 'bites_biteconsumer'
 # https://docs.sqlalchemy.org/en/14/orm/extensions/automap.html
 metadata = MetaData()
-metadata.reflect(engine, only=['bites_bite', 'bites_biteconsumer'])
+metadata.reflect(engine, only=[feedback_table])
 
 Base = automap_base(metadata=metadata)
 Base.prepare()
 
-table = Base.classes.bites_biteconsumer
+sa_table = getattr(Base.classes, feedback_table)
 
 
 def _get_feedbacks():
-    feedbacks = session.query(table.bite_id, table.comments).filter(
-        and_(table.comments != None, table.comments != '')  # noqa E711
+    feedbacks = session.query(sa_table.bite_id, sa_table.comments).filter(
+        and_(sa_table.comments != None, sa_table.comments != '')  # noqa E711
     )
     return feedbacks
 
@@ -55,7 +56,7 @@ def main(negative_only=True):
 
 def view_comments_bite(bite_id):
     feedbacks = _get_feedbacks()
-    bite_comments = feedbacks.filter(table.bite_id == bite_id).all()
+    bite_comments = feedbacks.filter(sa_table.bite_id == bite_id).all()
     for row in bite_comments:
         comment = row[1].replace("\r\n", " ")
         sentiment = TextBlob(comment).sentiment
