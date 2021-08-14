@@ -43,12 +43,13 @@ def main(negative_only=True):
     for bite_id, scores in sorted(results.items()):
         average_scores[bite_id] = len(scores), mean(scores)
 
+    print("bite id | # comments | avg sentiment score")
     for bite_id, (num_comments, avg_score) in sorted(
         average_scores.items(), key=lambda x: x[1][1]
     ):
         if negative_only and avg_score >= 0:
             continue
-        print(bite_id, num_comments, avg_score)
+        print(f"{bite_id:7} | {num_comments:10} | {avg_score}")
 
 
 def view_comments_bite(bite_id):
