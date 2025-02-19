@@ -1,14 +1,14 @@
 .PHONY: setup
 setup:
-	python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
+	uv sync
 
 .PHONY: lint
 lint:
-	flake8 --exclude venv
+	uvx ruff check
 
 .PHONY: test
 test:
-	pytest
+	uv run pytest
 
 .PHONY: ci
 ci: lint test

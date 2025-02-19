@@ -1,0 +1,17 @@
+[project]
+name = "nlp-bite-feedback"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "psycopg2>=2.9.10",
+    "python-dotenv>=1.0.1",
+    "sqlalchemy>=2.0.37",
+    "textblob>=0.19.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+]
