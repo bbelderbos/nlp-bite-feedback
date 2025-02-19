@@ -16,16 +16,15 @@ load_dotenv()
 engine = create_engine(os.environ["DATABASE_URL"])
 session = sessionmaker(engine)()
 
-feedback_table = "bites_biteconsumer"
+REVIEW_TABLE = "bites_biteconsumer"
 
-# https://docs.sqlalchemy.org/en/14/orm/extensions/automap.html
 metadata = MetaData()
-metadata.reflect(engine, only=[feedback_table])
+metadata.reflect(engine, only=[REVIEW_TABLE])
 
 Base = automap_base(metadata=metadata)
 Base.prepare()
 
-SA_TABLE = getattr(Base.classes, feedback_table)
+SA_TABLE = getattr(Base.classes, REVIEW_TABLE)
 
 
 class Comment(NamedTuple):
