@@ -1,7 +1,8 @@
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 import os
 from operator import attrgetter
 from statistics import mean
+from typing import NamedTuple
 import sys
 
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ load_dotenv()
 engine = create_engine(os.environ["DATABASE_URL"])
 session = sessionmaker(engine)()
 
-feedback_table = 'bites_biteconsumer'
+feedback_table = "bites_biteconsumer"
 
 # https://docs.sqlalchemy.org/en/14/orm/extensions/automap.html
 metadata = MetaData()
@@ -25,12 +26,16 @@ Base = automap_base(metadata=metadata)
 Base.prepare()
 
 SA_TABLE = getattr(Base.classes, feedback_table)
-Comment = namedtuple("Comment", "text polarity")
+
+
+class Comment(NamedTuple):
+    text: str
+    polarity: float
 
 
 def _get_feedbacks():
     feedbacks = session.query(SA_TABLE.bite_id, SA_TABLE.comments).filter(
-        and_(SA_TABLE.comments != None, SA_TABLE.comments != '')  # noqa E711
+        and_(SA_TABLE.comments != None, SA_TABLE.comments != "")  # noqa E711
     )
     return feedbacks
 
@@ -45,8 +50,7 @@ def _get_sentiments_per_bite(feedbacks, bite_id=None):
         comment = comment.replace("\r\n", " ")
         sentiment = TextBlob(comment).sentiment
         bite_sentiments[bite_id].append(
-            Comment(text=comment,
-                    polarity=sentiment.polarity)
+            Comment(text=comment, polarity=sentiment.polarity)
         )
 
     return bite_sentiments
@@ -86,7 +90,7 @@ def view_feedback_for_bite(bite_id):
         print(f"No feedbacks for Bite {bite_id}")
         return None
 
-    for comment in sorted(bite_comments, key=attrgetter('polarity')):
+    for comment in sorted(bite_comments, key=attrgetter("polarity")):
         print(f"{round(comment.polarity, 2):5} | {comment.text}")
 
 
