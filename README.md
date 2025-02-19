@@ -8,6 +8,8 @@ It's a great example of using a library that abstracts all (NLP) complexity away
 
 Run `make setup` to use uv to create a virtual environment and install the dependencies.
 
+Then to create a `reviews` database and add some fake data, run `make db`.
+
 ## Example
 
 Output of running `uv run python script.py`:
