@@ -3,7 +3,6 @@ import os
 from operator import attrgetter
 from statistics import mean
 from typing import NamedTuple
-import sys
 import argparse
 
 import plotext as plt
@@ -60,9 +59,7 @@ def _get_sentiments_per_bite(feedbacks, bite_id=None):
 def _get_average_scores(bite_sentiments):
     average_scores = {}
     for bite_id, comments in sorted(bite_sentiments.items()):
-        average_scores[bite_id] = (
-            len(comments), mean(c.polarity for c in comments)
-        )
+        average_scores[bite_id] = (len(comments), mean(c.polarity for c in comments))
     return average_scores
 
 
@@ -74,19 +71,28 @@ def _show_scores(average_scores):
         print(f"{bite_id:7} | {num_comments:10} | {avg_score:.4f}")
 
 
-def _plot_terminal_chart(average_scores):
+def _plot_terminal_chart(average_scores, show_negative_only: bool = True):
     """Generates a terminal-based bar chart for sentiment scores."""
     if not average_scores:
         print("No sentiment data to plot.")
         return
 
-    bite_ids = list(average_scores.keys())
-    avg_scores = [score[1] for score in average_scores.values()]
+    if show_negative_only:
+        filtered_scores = {k: v for k, v in average_scores.items() if v[1] < 0}
+    else:
+        filtered_scores = average_scores
 
-    plt.bar(bite_ids, avg_scores, orientation="horizontal", marker="█")
-    plt.title("Sentiment Analysis of Bite Feedback")
-    plt.xlabel("Average Sentiment Score")
-    plt.ylabel("Bite ID")
+    bite_ids = [str(bite_id) for bite_id in filtered_scores.keys()]
+    avg_scores = [score[1] for score in filtered_scores.values()]
+
+    plt.clear_data()
+    plt.bar(bite_ids, avg_scores, marker="█", width=80)
+
+    title_prefix = "Negative " if show_negative_only else ""
+    plt.title(f"{title_prefix}Sentiment Scores per Bite")
+    plt.xlabel("Bite ID")
+    plt.ylabel("Sentiment Score (-1 to 1)")
+    plt.grid(True)
     plt.show()
 
 
@@ -116,8 +122,14 @@ def view_feedback_for_bite(bite_id):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Analyze sentiment of Bite feedback.")
-    parser.add_argument("--bite_id", type=int, help="View feedback for a specific Bite ID")
-    parser.add_argument("--plot", action="store_true", help="Show sentiment analysis as a terminal bar chart")
+    parser.add_argument(
+        "--bite_id", type=int, help="View feedback for a specific Bite ID"
+    )
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Show sentiment analysis as a terminal bar chart",
+    )
 
     args = parser.parse_args()
 
@@ -125,4 +137,3 @@ if __name__ == "__main__":
         view_feedback_for_bite(args.bite_id)
     else:
         show_scores_per_bite(plot=args.plot)
-
