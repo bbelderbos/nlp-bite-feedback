@@ -4,7 +4,9 @@ from operator import attrgetter
 from statistics import mean
 from typing import NamedTuple
 import sys
+import argparse
 
+import plotext as plt
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, MetaData, and_
 from sqlalchemy.ext.automap import automap_base
@@ -69,14 +71,33 @@ def _show_scores(average_scores):
     for bite_id, (num_comments, avg_score) in sorted(
         average_scores.items(), key=lambda x: x[1][1]
     ):
-        print(f"{bite_id:7} | {num_comments:10} | {avg_score}")
+        print(f"{bite_id:7} | {num_comments:10} | {avg_score:.4f}")
 
 
-def show_scores_per_bite():
+def _plot_terminal_chart(average_scores):
+    """Generates a terminal-based bar chart for sentiment scores."""
+    if not average_scores:
+        print("No sentiment data to plot.")
+        return
+
+    bite_ids = list(average_scores.keys())
+    avg_scores = [score[1] for score in average_scores.values()]
+
+    plt.bar(bite_ids, avg_scores, orientation="horizontal", marker="█")
+    plt.title("Sentiment Analysis of Bite Feedback")
+    plt.xlabel("Average Sentiment Score")
+    plt.ylabel("Bite ID")
+    plt.show()
+
+
+def show_scores_per_bite(plot=False):
     feedbacks = _get_feedbacks()
     bite_sentiments = _get_sentiments_per_bite(feedbacks)
     average_scores = _get_average_scores(bite_sentiments)
     _show_scores(average_scores)
+
+    if plot:
+        _plot_terminal_chart(average_scores)
 
 
 def view_feedback_for_bite(bite_id):
@@ -94,8 +115,14 @@ def view_feedback_for_bite(bite_id):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        bite_id = int(sys.argv[1])
-        view_feedback_for_bite(bite_id)
+    parser = argparse.ArgumentParser(description="Analyze sentiment of Bite feedback.")
+    parser.add_argument("--bite_id", type=int, help="View feedback for a specific Bite ID")
+    parser.add_argument("--plot", action="store_true", help="Show sentiment analysis as a terminal bar chart")
+
+    args = parser.parse_args()
+
+    if args.bite_id:
+        view_feedback_for_bite(args.bite_id)
     else:
-        show_scores_per_bite()
+        show_scores_per_bite(plot=args.plot)
+
